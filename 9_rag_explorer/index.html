@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG探索者 - 检索增强生成实操</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .floating-particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .rag-step {
+            transition: all 0.3s ease;
+            transform: scale(0.95);
+            opacity: 0.7;
+        }
+        
+        .rag-step.active {
+            transform: scale(1);
+            opacity: 1;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .document-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .query-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .query-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .search-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .result-fade-in {
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .knowledge-base {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        
+        .knowledge-base::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .knowledge-base::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .knowledge-base::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .similarity-bar {
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48cae4, #51cf66);
+            height: 4px;
+            border-radius: 2px;
+            transition: width 0.8s ease;
+        }
+        
+        .typing-effect {
+            border-right: 2px solid #667eea;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { border-color: transparent; }
+            51%, 100% { border-color: #667eea; }
+        }
+    </style>
+</head>
+<body class="relative">
+            <div class="animated-bg"></div>
+        
+        <div class="relative z-10 p-6">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-white mb-4">🔍 RAG探索者</h1>
+            <p class="text-xl text-gray-200 mb-6">检索增强生成（Retrieval-Augmented Generation）原理实操</p>
+            <div class="flex justify-center space-x-4 mb-6">
+                <span class="bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full text-sm">📚 知识检索</span>
+                <span class="bg-green-500/20 text-green-300 px-4 py-2 rounded-full text-sm">🤖 AI生成</span>
+                <span class="bg-purple-500/20 text-purple-300 px-4 py-2 rounded-full text-sm">⚡ 实时演示</span>
+            </div>
+            
+            <!-- Game Control Center -->
+            <div class="glass-card p-6 max-w-4xl mx-auto mb-6">
+                <h3 class="text-xl font-bold text-white mb-4">🎮 游戏控制中心</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="startScenario('ai_basics')" class="scenario-btn bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 p-3 rounded-lg transition-all duration-300">
+                        🤖 AI基础问答
+                    </button>
+                    <button onclick="startScenario('ml_comparison')" class="scenario-btn bg-green-500/20 hover:bg-green-500/30 text-green-300 p-3 rounded-lg transition-all duration-300">
+                        📊 技术对比
+                    </button>
+                    <button onclick="startScenario('code_help')" class="scenario-btn bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 p-3 rounded-lg transition-all duration-300">
+                        💻 编程助手
+                    </button>
+                    <button onclick="startScenario('custom')" class="scenario-btn bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 p-3 rounded-lg transition-all duration-300">
+                        ✨ 自由探索
+                    </button>
+                </div>
+                <div class="mt-4 text-sm text-gray-300 text-center">
+                    选择一个场景开始RAG探索之旅！每个场景都会展示不同的检索和生成策略
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="glass-card p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-white font-medium">RAG流程进度</span>
+                    <span class="text-white" id="progressText">0%</span>
+                </div>
+                <div class="bg-white/20 rounded-full h-2">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Panel: Knowledge Base -->
+            <div class="lg:col-span-1">
+                <div class="glass-card p-6 h-full">
+                    <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        📚 知识库
+                        <span class="ml-2 text-sm bg-blue-500/30 px-2 py-1 rounded">向量化存储</span>
+                    </h3>
+                    <div class="knowledge-base space-y-3" id="knowledgeBase">
+                        <!-- 知识库文档将动态生成 -->
+                    </div>
+                    <button 
+                        class="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+                        onclick="showDocumentUploader()"
+                    >
+                        ➕ 添加文档
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center Panel: RAG Process -->
+            <div class="lg:col-span-1">
+                <div class="space-y-6">
+                    <!-- Current Scenario -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">🎯 当前场景</h3>
+                        <div id="currentScenario" class="text-center py-8 text-gray-400">
+                            请选择一个场景开始游戏
+                        </div>
+                        <div id="scenarioQuestions" class="space-y-3 hidden">
+                            <!-- 场景问题将动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- RAG Steps Visualization -->
+                    <div class="space-y-4">
+                        <div class="rag-step glass-card p-4" id="step1">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">1</div>
+                                <h4 class="text-white font-medium">查询向量化</h4>
+                            </div>
+                            <p class="text-gray-300 text-sm ml-11">将用户查询转换为向量表示</p>
+                            <div class="mt-2 bg-white/10 rounded p-2 text-xs text-gray-300" id="step1Details"></div>
+                        </div>
+
+                        <div class="rag-step glass-card p-4" id="step2">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold mr-3">2</div>
+                                <h4 class="text-white font-medium">相似度检索</h4>
+                            </div>
+                            <p class="text-gray-300 text-sm ml-11">在知识库中搜索相关文档</p>
+                            <div class="mt-2 bg-white/10 rounded p-2 text-xs text-gray-300" id="step2Details"></div>
+                        </div>
+
+                        <div class="rag-step glass-card p-4" id="step3">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-3">3</div>
+                                <h4 class="text-white font-medium">上下文构建</h4>
+                            </div>
+                            <p class="text-gray-300 text-sm ml-11">组装检索结果作为上下文</p>
+                            <div class="mt-2 bg-white/10 rounded p-2 text-xs text-gray-300" id="step3Details"></div>
+                        </div>
+
+                        <div class="rag-step glass-card p-4" id="step4">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold mr-3">4</div>
+                                <h4 class="text-white font-medium">AI生成回答</h4>
+                            </div>
+                            <p class="text-gray-300 text-sm ml-11">基于上下文生成最终回答</p>
+                            <div class="mt-2 bg-white/10 rounded p-2 text-xs text-gray-300" id="step4Details"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="lg:col-span-1">
+                <div class="space-y-6">
+                    <!-- Search Results -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                            🎯 检索结果
+                            <span class="ml-2 text-sm bg-green-500/30 px-2 py-1 rounded">相似度排序</span>
+                        </h3>
+                        <div id="searchResults" class="space-y-3">
+                            <div class="text-gray-400 text-center py-8">
+                                输入查询开始检索...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Generated Answer -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                            🤖 AI生成回答
+                            <span class="ml-2 text-sm bg-purple-500/30 px-2 py-1 rounded">RAG增强</span>
+                        </h3>
+                        <div id="aiAnswer" class="bg-white/10 rounded-lg p-4 min-h-32">
+                            <div class="text-gray-400 text-center py-8">
+                                等待AI生成回答...
+                            </div>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-300">
+                            <div class="flex justify-between">
+                                <span>置信度: <span id="confidenceScore">--</span></span>
+                                <span>响应时间: <span id="responseTime">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Spacer -->
+        <div class="h-20"></div>
+
+        <!-- Document Uploader Modal -->
+        <div id="documentUploaderModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="glass-card p-8 max-w-2xl mx-4">
+                <h3 class="text-2xl font-bold text-white mb-4">📄 添加新文档</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-white mb-2">文档标题</label>
+                        <input id="docTitle" type="text" class="w-full p-3 rounded-lg bg-white/90 text-gray-800" placeholder="例如：深度学习框架对比">
+                    </div>
+                    <div>
+                        <label class="block text-white mb-2">文档分类</label>
+                        <select id="docCategory" class="w-full p-3 rounded-lg bg-white/90 text-gray-800">
+                            <option value="AI基础">AI基础</option>
+                            <option value="机器学习">机器学习</option>
+                            <option value="深度学习">深度学习</option>
+                            <option value="NLP">自然语言处理</option>
+                            <option value="计算机视觉">计算机视觉</option>
+                            <option value="RAG技术">RAG技术</option>
+                            <option value="自定义">自定义</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-white mb-2">文档内容</label>
+                        <textarea id="docContent" rows="6" class="w-full p-3 rounded-lg bg-white/90 text-gray-800" placeholder="输入文档的详细内容..."></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-6">
+                    <button onclick="closeDocumentUploader()" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors">取消</button>
+                    <button onclick="addCustomDocument()" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors">添加文档</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="glass-card p-8 max-w-2xl mx-4">
+                <h3 class="text-2xl font-bold text-white mb-4">🎓 RAG原理教程</h3>
+                <div id="tutorialContent" class="text-gray-200 space-y-4">
+                    <!-- 教程内容将动态加载 -->
+                </div>
+                <div class="flex justify-between mt-6">
+                    <button onclick="previousTutorialStep()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">上一步</button>
+                    <button onclick="closeTutorial()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">关闭</button>
+                    <button onclick="nextTutorialStep()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">下一步</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="fixed bottom-6 right-6 space-y-3">
+            <button 
+                onclick="showTutorial()"
+                class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 block"
+                title="查看教程"
+            >
+                📚
+            </button>
+            <button 
+                onclick="resetGame()"
+                class="bg-gray-500 hover:bg-gray-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 block"
+                title="重置游戏"
+            >
+                🔄
+            </button>
+            <button 
+                onclick="window.location.href='../'"
+                class="bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 block"
+                title="返回首页"
+            >
+                🏠
+            </button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 
