@@ -23,8 +23,17 @@
                     <div class="text-lg">
                         <span class="text-red-400">❤️</span> 生命: <span id="lives" class="text-red-300">3</span>
                     </div>
+                    <div class="text-lg">
+                        <span class="text-purple-400">⚡</span> 连击: <span id="combo" class="text-purple-300">0</span>
+                    </div>
+                    <div class="text-lg">
+                        <span class="text-orange-400">💰</span> 金币: <span id="coins" class="text-orange-300">0</span>
+                    </div>
                 </div>
                 <div class="flex gap-4">
+                    <button id="autoBtn" class="bg-green-500/80 hover:bg-green-500 px-4 py-2 rounded-lg font-bold transition-all">
+                        <span id="autoText">🤖 AI代玩</span>
+                    </button>
                     <button id="pauseBtn" class="bg-yellow-500/80 hover:bg-yellow-500 px-4 py-2 rounded-lg font-bold transition-all">
                         暂停
                     </button>
@@ -43,12 +52,27 @@
             <div class="text-center bg-white/10 backdrop-blur-lg rounded-3xl p-12 max-w-md mx-4">
                 <h1 class="text-5xl font-bold text-white mb-6 animate-pulse">🐠大鱼吃小鱼🐟</h1>
                 <p class="text-lg text-gray-300 mb-8">控制你的鱼儿，吃掉比你小的鱼来成长！<br>小心不要被大鱼吃掉哦～</p>
-                <div class="text-left text-gray-300 mb-8 space-y-2">
+                <div class="text-left text-gray-300 mb-8 space-y-3">
                     <p>🎮 <strong>操作方式：</strong></p>
-                    <p>• 鼠标移动控制鱼儿游动</p>
-                    <p>• 吃掉小鱼获得分数和成长</p>
-                    <p>• 避开大鱼保命生存</p>
-                    <p>• 鱼儿越大游戏越刺激！</p>
+                    <div id="pcControls" class="bg-white/10 rounded-lg p-4 space-y-2">
+                        <p>🖱️ <strong>鼠标/键盘</strong> → WASD或方向键控制金色鱼儿</p>
+                        <p>⚡ <strong>加速冲刺</strong> → 按住Shift键获得爆发速度</p>
+                        <p>🐟 <strong>吃小鱼</strong> → 蓝色/绿色鱼获得分数成长</p>
+                        <p>⚠️ <strong>避开大鱼</strong> → 红色/深红鱼会吃掉你！</p>
+                        <p>🤖 <strong>AI代玩</strong> → 点击AI按钮轻松观看</p>
+                        <p>⌨️ <strong>空格键</strong> → 游戏中暂停/继续</p>
+                    </div>
+                    <div id="mobileControlsInfo" class="bg-white/10 rounded-lg p-4 space-y-2 hidden">
+                        <p>📱 <strong>触屏控制</strong> → 手指触摸屏幕控制金色鱼儿</p>
+                        <p>🕹️ <strong>虚拟按键</strong> → 使用屏幕上的方向按钮</p>
+                        <p>🚀 <strong>加速按钮</strong> → 点击右下角橙色按钮冲刺</p>
+                        <p>🐟 <strong>吃小鱼</strong> → 蓝色/绿色鱼获得分数成长</p>
+                        <p>⚠️ <strong>避开大鱼</strong> → 红色/深红鱼会吃掉你！</p>
+                        <p>🤖 <strong>AI代玩</strong> → 点击绿色AI按钮轻松观看</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-3 text-center">
+                        <p id="deviceTip" class="text-yellow-300 font-bold">💡 提示：鱼儿会自动游向你指定的位置！</p>
+                    </div>
                 </div>
                 <button id="startBtn" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-xl transform hover:scale-105 transition-all shadow-lg">
                     🚀 开始游戏
@@ -89,6 +113,51 @@
         <!-- 成就提示 -->
         <div id="achievementPopup" class="absolute top-24 left-1/2 transform -translate-x-1/2 bg-yellow-500/90 text-black px-6 py-3 rounded-lg font-bold z-50 hidden animate-bounce">
             <span id="achievementMessage"></span>
+        </div>
+        
+        <!-- 游戏提示 -->
+        <div id="gameHints" class="absolute bottom-4 left-4 right-4 text-center text-white/80 text-sm z-30 hidden">
+            <div class="bg-black/30 backdrop-blur-sm rounded-lg p-3 inline-block">
+                <p id="hintText">🖱️ 移动鼠标控制鱼儿游动</p>
+            </div>
+        </div>
+        
+        <!-- 移动端控制按钮 -->
+        <div id="mobileControls" class="absolute bottom-8 left-0 right-0 z-40 hidden">
+            <!-- 方向控制 -->
+            <div class="absolute bottom-24 left-8">
+                <div class="relative w-32 h-32">
+                    <!-- 背景圆圈 -->
+                    <div class="absolute inset-0 bg-white/20 rounded-full border-2 border-white/40"></div>
+                    <!-- 方向按钮 -->
+                    <button id="upBtn" class="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-500/80 rounded-full flex items-center justify-center text-white font-bold">↑</button>
+                    <button id="downBtn" class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-500/80 rounded-full flex items-center justify-center text-white font-bold">↓</button>
+                    <button id="leftBtn" class="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-blue-500/80 rounded-full flex items-center justify-center text-white font-bold">←</button>
+                    <button id="rightBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-blue-500/80 rounded-full flex items-center justify-center text-white font-bold">→</button>
+                </div>
+            </div>
+            
+            <!-- 功能按钮 -->
+            <div class="absolute bottom-24 right-8 flex flex-col gap-4">
+                <button id="boostBtn" class="w-16 h-16 bg-orange-500/80 hover:bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                    <div class="text-center">
+                        <div>🚀</div>
+                        <div>加速</div>
+                    </div>
+                </button>
+                <button id="mobileAutoBtn" class="w-16 h-16 bg-green-500/80 hover:bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                    <div class="text-center">
+                        <div>🤖</div>
+                        <div id="mobileAutoText">AI</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 自定义鼠标光标 -->
+        <div id="customCursor" class="absolute w-8 h-8 pointer-events-none z-50 hidden">
+            <div class="w-8 h-8 bg-yellow-400 rounded-full opacity-70 animate-pulse"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs">🎯</div>
         </div>
 
         <!-- 水泡效果 -->

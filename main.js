@@ -155,15 +155,9 @@ class GameCenter {
     }
 
     animateBackground() {
-        let hue = 0;
-        setInterval(() => {
-            hue = (hue + 1) % 360;
-            document.body.style.background = `linear-gradient(135deg, 
-                hsl(${hue}, 60%, 10%), 
-                hsl(${(hue + 60) % 360}, 60%, 15%), 
-                hsl(${(hue + 120) % 360}, 60%, 10%)
-            )`;
-        }, 200);
+        // 移除动态背景变化，保持HTML中设置的静态渐变背景
+        // 原来的动态背景会覆盖 Tailwind CSS 的背景样式
+        // 现在使用静态的美丽渐变背景
     }
 
     createHoverEffect(element) {
