@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法诗人 - Algorithm Poet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-900 min-h-screen overflow-hidden">
+    <!-- 返回按钮 -->
+    <div class="absolute top-4 left-4 z-50">
+        <button onclick="window.location.href='../'" class="bg-white/20 hover:bg-white/30 backdrop-blur-lg text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+            <span>←</span> 返回游戏中心
+        </button>
+    </div>
+
+    <!-- 游戏界面 -->
+    <div class="relative w-full h-screen">
+        <!-- 标题和状态面板 -->
+        <div class="absolute top-4 right-4 z-40 text-right">
+            <h1 class="text-3xl font-bold text-white mb-2">📝 算法诗人</h1>
+            <div class="bg-white/20 backdrop-blur-lg rounded-lg p-4 text-white">
+                <div class="mb-2">创作深度: <span id="creativityDepth" class="font-bold text-pink-300">0</span></div>
+                <div class="mb-2">诗歌数量: <span id="poemCount" class="font-bold text-purple-300">0</span></div>
+                <div class="mb-2">灵感值: <span id="inspirationLevel" class="font-bold text-yellow-300">100%</span></div>
+                <div class="mb-2">协作度: <span id="collaborationLevel" class="font-bold text-cyan-300">0%</span></div>
+                <div class="text-sm text-gray-300 mt-3">
+                    <div>✍️ 与AI共同创作</div>
+                    <div>🎨 探索语言艺术</div>
+                    <div>💫 释放无限创意</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主创作区域 -->
+        <div class="absolute inset-0 flex">
+            <!-- 左侧：诗歌创作区 -->
+            <div class="w-1/2 p-8 flex flex-col">
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 flex-1 flex flex-col">
+                    <h3 class="text-xl font-bold text-white mb-4">🎭 创作工坊</h3>
+                    
+                    <!-- 主题选择 -->
+                    <div class="mb-4">
+                        <label class="text-white text-sm mb-2 block">选择主题</label>
+                        <select id="themeSelect" class="bg-white/20 text-white rounded-lg px-3 py-2 w-full border border-white/30">
+                            <option value="love">💕 爱情</option>
+                            <option value="nature">🌸 自然</option>
+                            <option value="technology">🤖 科技</option>
+                            <option value="dreams">💭 梦想</option>
+                            <option value="time">⏰ 时间</option>
+                            <option value="space">🌌 宇宙</option>
+                            <option value="emotion">💖 情感</option>
+                            <option value="freedom">🕊️ 自由</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 风格选择 -->
+                    <div class="mb-4">
+                        <label class="text-white text-sm mb-2 block">创作风格</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="style-btn bg-pink-500/30 hover:bg-pink-500/50 text-pink-300 px-3 py-2 rounded-lg text-sm" data-style="romantic">浪漫</button>
+                            <button class="style-btn bg-blue-500/30 hover:bg-blue-500/50 text-blue-300 px-3 py-2 rounded-lg text-sm" data-style="modern">现代</button>
+                            <button class="style-btn bg-green-500/30 hover:bg-green-500/50 text-green-300 px-3 py-2 rounded-lg text-sm" data-style="classical">古典</button>
+                            <button class="style-btn bg-purple-500/30 hover:bg-purple-500/50 text-purple-300 px-3 py-2 rounded-lg text-sm" data-style="abstract">抽象</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 创作输入 -->
+                    <div class="flex-1 flex flex-col">
+                        <label class="text-white text-sm mb-2 block">你的诗句</label>
+                        <textarea id="userInput" class="bg-white/20 text-white rounded-lg p-3 flex-1 border border-white/30 resize-none" placeholder="输入你的诗句，AI将为你续写..."></textarea>
+                    </div>
+                    
+                    <!-- 创作按钮 -->
+                    <div class="mt-4 flex gap-2">
+                        <button id="generateBtn" class="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-6 py-2 rounded-lg font-bold flex-1">
+                            ✨ AI续写
+                        </button>
+                        <button id="saveBtn" class="bg-green-500/30 hover:bg-green-500/50 text-green-300 px-4 py-2 rounded-lg">
+                            💾 保存
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：诗歌展示区 -->
+            <div class="w-1/2 p-8 flex flex-col">
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 flex-1 flex flex-col">
+                    <h3 class="text-xl font-bold text-white mb-4">📜 作品展示</h3>
+                    
+                    <!-- 当前诗歌 -->
+                    <div class="bg-black/30 rounded-lg p-4 mb-4 flex-1">
+                        <div id="currentPoem" class="text-white leading-relaxed h-full overflow-y-auto">
+                            <div class="text-center text-gray-400 mt-8">
+                                开始创作你的第一首诗吧！
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 诗歌操作 -->
+                    <div class="flex gap-2 mb-4">
+                        <button id="newPoemBtn" class="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-300 px-4 py-2 rounded-lg text-sm">
+                            📄 新诗
+                        </button>
+                        <button id="shareBtn" class="bg-blue-500/30 hover:bg-blue-500/50 text-blue-300 px-4 py-2 rounded-lg text-sm">
+                            📤 分享
+                        </button>
+                        <button id="exportBtn" class="bg-purple-500/30 hover:bg-purple-500/50 text-purple-300 px-4 py-2 rounded-lg text-sm">
+                            📋 导出
+                        </button>
+                    </div>
+                    
+                    <!-- 诗歌历史 -->
+                    <div class="bg-black/20 rounded-lg p-3 max-h-32 overflow-y-auto">
+                        <h4 class="text-sm text-gray-300 mb-2">创作历史</h4>
+                        <div id="poemHistory" class="space-y-1">
+                            <!-- 历史诗歌列表 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+            <div class="bg-white/20 backdrop-blur-lg rounded-lg p-4 flex gap-4">
+                <button id="tutorialBtn" class="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    📚 教程
+                </button>
+                <button id="aiDemoBtn" class="bg-green-500/30 hover:bg-green-500/50 text-green-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    🤖 AI演示
+                </button>
+                <button id="inspirationBtn" class="bg-pink-500/30 hover:bg-pink-500/50 text-pink-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    💡 灵感
+                </button>
+                <button id="randomBtn" class="bg-purple-500/30 hover:bg-purple-500/50 text-purple-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    🎲 随机
+                </button>
+            </div>
+        </div>
+
+        <!-- 灵感粒子效果容器 -->
+        <div id="inspirationParticles" class="absolute inset-0 pointer-events-none z-10"></div>
+        
+        <!-- 教程模态框 -->
+        <div id="tutorialModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 max-w-2xl mx-4 text-white">
+                <h2 class="text-3xl font-bold mb-6 text-center">📝 算法诗人教程</h2>
+                <div id="tutorialContent" class="space-y-4">
+                    <!-- 教程内容将动态生成 -->
+                </div>
+                <div class="flex justify-between mt-8">
+                    <button id="prevStep" class="bg-pink-500/30 hover:bg-pink-500/50 px-4 py-2 rounded-lg">上一步</button>
+                    <span id="stepIndicator" class="text-gray-300">1 / 5</span>
+                    <button id="nextStep" class="bg-pink-500/30 hover:bg-pink-500/50 px-4 py-2 rounded-lg">下一步</button>
+                </div>
+                <button id="closeTutorial" class="absolute top-4 right-4 text-white hover:text-red-300 text-2xl">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 

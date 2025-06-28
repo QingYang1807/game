@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>量子意识迷宫 - Quantum Consciousness Maze</title>
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="styles.css?v=1.0.0" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.css?v=1.0.0"></noscript>
+    <!-- Tailwind CSS with fallback -->
+    <script>
+        // 检测Tailwind是否加载成功
+        function checkTailwind() {
+            const testEl = document.createElement('div');
+            testEl.className = 'bg-red-500';
+            document.body.appendChild(testEl);
+            const hasColor = window.getComputedStyle(testEl).backgroundColor !== 'rgba(0, 0, 0, 0)' && 
+                            window.getComputedStyle(testEl).backgroundColor !== '';
+            document.body.removeChild(testEl);
+            return hasColor;
+        }
+        
+        // 动态加载Tailwind
+        const tailwindScript = document.createElement('script');
+        tailwindScript.src = 'https://cdn.tailwindcss.com?v=' + Date.now();
+        tailwindScript.onload = function() {
+            // Tailwind加载完成后检查
+            setTimeout(() => {
+                if (!checkTailwind()) {
+                    console.warn('Tailwind CSS 加载失败，使用备用样式');
+                    document.body.classList.add('tailwind-fallback');
+                }
+            }, 100);
+        };
+        tailwindScript.onerror = function() {
+            console.warn('Tailwind CDN 加载失败，使用备用样式');
+            document.body.classList.add('tailwind-fallback');
+        };
+        document.head.appendChild(tailwindScript);
+    </script>
+    
+    <!-- 内联备用样式 -->
+    <style>
+        /* 备用样式，防止Tailwind加载失败 */
+        body.tailwind-fallback {
+            background: linear-gradient(135deg, #581c87, #1e1b4b, #1e3a8a) !important;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+        
+        .tailwind-fallback .bg-gradient-to-br { background: linear-gradient(135deg, #581c87, #1e1b4b, #1e3a8a); }
+        .tailwind-fallback .text-white { color: white; }
+        .tailwind-fallback .text-3xl { font-size: 1.875rem; font-weight: bold; }
+        .tailwind-fallback .absolute { position: absolute; }
+        .tailwind-fallback .top-4 { top: 1rem; }
+        .tailwind-fallback .left-4 { left: 1rem; }
+        .tailwind-fallback .right-4 { right: 1rem; }
+        .tailwind-fallback .bottom-4 { bottom: 1rem; }
+        .tailwind-fallback .z-50 { z-index: 50; }
+        .tailwind-fallback .z-40 { z-index: 40; }
+        .tailwind-fallback .z-10 { z-index: 10; }
+        .tailwind-fallback .bg-white\/20 { background: rgba(255, 255, 255, 0.2); }
+        .tailwind-fallback .backdrop-blur-lg { backdrop-filter: blur(16px); }
+        .tailwind-fallback .rounded-lg { border-radius: 0.5rem; }
+        .tailwind-fallback .p-4 { padding: 1rem; }
+        .tailwind-fallback .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .tailwind-fallback .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .tailwind-fallback .mb-2 { margin-bottom: 0.5rem; }
+        .tailwind-fallback .flex { display: flex; }
+        .tailwind-fallback .gap-2 { gap: 0.5rem; }
+        .tailwind-fallback .gap-4 { gap: 1rem; }
+        .tailwind-fallback .items-center { align-items: center; }
+        .tailwind-fallback .justify-center { justify-content: center; }
+        .tailwind-fallback .text-center { text-align: center; }
+        .tailwind-fallback .text-right { text-align: right; }
+        .tailwind-fallback .font-bold { font-weight: bold; }
+        .tailwind-fallback .w-full { width: 100%; }
+        .tailwind-fallback .h-full { height: 100%; }
+        .tailwind-fallback .h-screen { height: 100vh; }
+        .tailwind-fallback .relative { position: relative; }
+        .tailwind-fallback .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .tailwind-fallback .pointer-events-none { pointer-events: none; }
+        .tailwind-fallback .cursor-crosshair { cursor: crosshair; }
+        .tailwind-fallback .transform { transform: translateX(0); }
+        .tailwind-fallback .-translate-x-1\/2 { transform: translateX(-50%); }
+        .tailwind-fallback .-translate-y-1\/2 { transform: translateY(-50%); }
+        .tailwind-fallback .left-1\/2 { left: 50%; }
+        .tailwind-fallback .top-1\/2 { top: 50%; }
+        .tailwind-fallback .transition-all { transition: all 0.3s ease; }
+        .tailwind-fallback .duration-300 { transition-duration: 300ms; }
+        .tailwind-fallback .hover\:bg-white\/30:hover { background: rgba(255, 255, 255, 0.3); }
+        .tailwind-fallback .text-purple-300 { color: #c4b5fd; }
+        .tailwind-fallback .text-cyan-300 { color: #67e8f9; }
+        .tailwind-fallback .text-pink-300 { color: #f9a8d4; }
+        .tailwind-fallback .text-yellow-300 { color: #fde047; }
+        .tailwind-fallback .text-red-300 { color: #fca5a5; }
+        .tailwind-fallback .text-green-300 { color: #86efac; }
+        .tailwind-fallback .text-gray-300 { color: #d1d5db; }
+        .tailwind-fallback .text-gray-200 { color: #e5e7eb; }
+        .tailwind-fallback .bg-cyan-500\/30 { background: rgba(6, 182, 212, 0.3); }
+        .tailwind-fallback .bg-purple-500\/30 { background: rgba(168, 85, 247, 0.3); }
+        .tailwind-fallback .bg-pink-500\/30 { background: rgba(236, 72, 153, 0.3); }
+        .tailwind-fallback .bg-red-500\/30 { background: rgba(239, 68, 68, 0.3); }
+        .tailwind-fallback .bg-yellow-500\/30 { background: rgba(234, 179, 8, 0.3); }
+        .tailwind-fallback .bg-green-500\/30 { background: rgba(34, 197, 94, 0.3); }
+        .tailwind-fallback .hover\:bg-cyan-500\/50:hover { background: rgba(6, 182, 212, 0.5); }
+        .tailwind-fallback .hover\:bg-purple-500\/50:hover { background: rgba(168, 85, 247, 0.5); }
+        .tailwind-fallback .hover\:bg-pink-500\/50:hover { background: rgba(236, 72, 153, 0.5); }
+        .tailwind-fallback .hover\:bg-red-500\/50:hover { background: rgba(239, 68, 68, 0.5); }
+        .tailwind-fallback .hover\:bg-yellow-500\/50:hover { background: rgba(234, 179, 8, 0.5); }
+        .tailwind-fallback .hover\:bg-green-500\/50:hover { background: rgba(34, 197, 94, 0.5); }
+        .tailwind-fallback .flex-col { flex-direction: column; }
+        .tailwind-fallback .space-y-4 > * + * { margin-top: 1rem; }
+        .tailwind-fallback .mt-8 { margin-top: 2rem; }
+        .tailwind-fallback .mb-6 { margin-bottom: 1.5rem; }
+        .tailwind-fallback .mb-4 { margin-bottom: 1rem; }
+        .tailwind-fallback .max-w-2xl { max-width: 42rem; }
+        .tailwind-fallback .mx-4 { margin-left: 1rem; margin-right: 1rem; }
+        .tailwind-fallback .rounded-2xl { border-radius: 1rem; }
+        .tailwind-fallback .p-8 { padding: 2rem; }
+        .tailwind-fallback .text-xl { font-size: 1.25rem; }
+        .tailwind-fallback .text-sm { font-size: 0.875rem; }
+        .tailwind-fallback .text-2xl { font-size: 1.5rem; }
+        .tailwind-fallback .justify-between { justify-content: space-between; }
+        .tailwind-fallback .leading-relaxed { line-height: 1.625; }
+        .tailwind-fallback .bg-black\/80 { background: rgba(0, 0, 0, 0.8); }
+        .tailwind-fallback .backdrop-blur-sm { backdrop-filter: blur(4px); }
+        .tailwind-fallback .fixed { position: fixed; }
+        .tailwind-fallback .hidden { display: none; }
+        .tailwind-fallback .bg-white\/10 { background: rgba(255, 255, 255, 0.1); }
+        .tailwind-fallback .hover\:text-red-300:hover { color: #fca5a5; }
+        
+        /* 按钮基础样式 */
+        .tailwind-fallback button {
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        /* 加载指示器 */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            color: white;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .loading-indicator.show {
+            display: block;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 min-h-screen overflow-hidden">
+    <!-- 加载指示器 -->
+    <div id="loadingIndicator" class="loading-indicator show">
+        <div class="spinner"></div>
+        正在加载量子意识迷宫...
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="absolute top-4 left-4 z-50">
+        <button onclick="window.location.href='../'" class="bg-white/20 hover:bg-white/30 backdrop-blur-lg text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+            <span>←</span> 返回游戏中心
+        </button>
+    </div>
+
+    <!-- 游戏界面 -->
+    <div class="relative w-full h-screen">
+        <!-- 标题和状态面板 -->
+        <div class="absolute top-4 right-4 z-40 text-right">
+            <h1 class="text-3xl font-bold text-white mb-2">🌌 量子意识迷宫</h1>
+            <div class="bg-white/20 backdrop-blur-lg rounded-lg p-4 text-white">
+                <div class="mb-2">维度层级: <span id="dimensionLevel" class="font-bold text-purple-300">1</span></div>
+                <div class="mb-2">叠加态: <span id="superpositionState" class="font-bold text-cyan-300">稳定</span></div>
+                <div class="mb-2">量子能量: <span id="quantumEnergy" class="font-bold text-pink-300">100%</span></div>
+                <div class="mb-2">观察次数: <span id="observationCount" class="font-bold text-yellow-300">0</span></div>
+                <div class="text-sm text-gray-300 mt-3">
+                    <div>🎯 找到量子出口</div>
+                    <div>⚡ 利用叠加态穿墙</div>
+                    <div>🔮 观察改变现实</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主画布 -->
+        <canvas id="quantumCanvas" class="w-full h-full cursor-crosshair"></canvas>
+
+        <!-- 控制面板 -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+            <div class="bg-white/20 backdrop-blur-lg rounded-lg p-4 flex gap-4">
+                <button id="observeBtn" class="bg-cyan-500/30 hover:bg-cyan-500/50 text-cyan-300 px-4 py-2 rounded-lg transition-all duration-300 font-bold">
+                    👁️ 观察
+                </button>
+                <button id="superpositionBtn" class="bg-purple-500/30 hover:bg-purple-500/50 text-purple-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    🌀 叠加态
+                </button>
+                <button id="teleportBtn" class="bg-pink-500/30 hover:bg-pink-500/50 text-pink-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    ⚡ 量子传送
+                </button>
+                <button id="resetBtn" class="bg-red-500/30 hover:bg-red-500/50 text-red-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    🔄 重置
+                </button>
+                <button id="tutorialBtn" class="bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    📚 教程
+                </button>
+                <button id="aiDemoBtn" class="bg-green-500/30 hover:bg-green-500/50 text-green-300 px-4 py-2 rounded-lg transition-all duration-300">
+                    🤖 AI演示
+                </button>
+            </div>
+        </div>
+
+        <!-- 量子粒子效果容器 -->
+        <div id="quantumParticles" class="absolute inset-0 pointer-events-none z-10"></div>
+        
+        <!-- 维度切换指示器 -->
+        <div id="dimensionIndicator" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-40">
+            <div class="bg-white/20 backdrop-blur-lg rounded-lg p-3 text-white text-center">
+                <div class="text-sm mb-2">维度切换</div>
+                <div id="dimensionButtons" class="flex flex-col gap-2">
+                    <!-- 动态生成维度按钮 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 教程模态框 -->
+        <div id="tutorialModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 max-w-2xl mx-4 text-white">
+                <h2 class="text-3xl font-bold mb-6 text-center">🌌 量子意识迷宫教程</h2>
+                <div id="tutorialContent" class="space-y-4">
+                    <!-- 教程内容将动态生成 -->
+                </div>
+                <div class="flex justify-between mt-8">
+                    <button id="prevStep" class="bg-purple-500/30 hover:bg-purple-500/50 px-4 py-2 rounded-lg">上一步</button>
+                    <span id="stepIndicator" class="text-gray-300">1 / 6</span>
+                    <button id="nextStep" class="bg-purple-500/30 hover:bg-purple-500/50 px-4 py-2 rounded-lg">下一步</button>
+                </div>
+                <button id="closeTutorial" class="absolute top-4 right-4 text-white hover:text-red-300 text-2xl">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 

@@ -1,0 +1,366 @@
+/* 数据流冥想样式 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    user-select: none;
+    overflow: hidden;
+    cursor: none;
+}
+
+/* 数据画布样式 */
+#dataCanvas {
+    background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    backdrop-filter: blur(1px);
+}
+
+/* 数据粒子动画 */
+.data-particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: radial-gradient(circle, #06b6d4, #0891b2);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: dataFloat 4s ease-in-out infinite;
+}
+
+@keyframes dataFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-30px) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* 数据流线动画 */
+.data-stream {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+    animation: streamFlow 3s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes streamFlow {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100vw);
+        opacity: 0;
+    }
+}
+
+/* 和谐波纹效果 */
+.harmony-ripple {
+    position: absolute;
+    border: 2px solid rgba(6, 182, 212, 0.6);
+    border-radius: 50%;
+    animation: harmonyRipple 2s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes harmonyRipple {
+    0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+        border-width: 2px;
+    }
+    100% {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+        border-width: 0;
+    }
+}
+
+/* 冥想指导文字动画 */
+.meditation-guide {
+    animation: guideFade 8s ease-in-out infinite;
+}
+
+@keyframes guideFade {
+    0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+}
+
+/* 数据流模式按钮 */
+.flow-mode-active {
+    background: rgba(6, 182, 212, 0.5) !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+}
+
+/* 流动状态指示器 */
+.flow-state-calm {
+    background: linear-gradient(to top, #06b6d4, #0891b2);
+}
+
+.flow-state-active {
+    background: linear-gradient(to top, #10b981, #059669);
+}
+
+.flow-state-turbulent {
+    background: linear-gradient(to top, #f59e0b, #d97706);
+}
+
+.flow-state-chaotic {
+    background: linear-gradient(to top, #ef4444, #dc2626);
+}
+
+/* 数据流轨迹 */
+.data-trail {
+    position: absolute;
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(6, 182, 212, 0.8), transparent);
+    animation: trailFade 2s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes trailFade {
+    0% {
+        opacity: 1;
+        height: 50px;
+    }
+    100% {
+        opacity: 0;
+        height: 10px;
+    }
+}
+
+/* 和谐共振效果 */
+.harmony-resonance {
+    position: absolute;
+    border: 1px solid rgba(16, 185, 129, 0.6);
+    border-radius: 50%;
+    animation: resonancePulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes resonancePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.6;
+        border-color: rgba(16, 185, 129, 0.6);
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.3;
+        border-color: rgba(6, 182, 212, 0.6);
+    }
+}
+
+/* 数据净化效果 */
+.data-purification {
+    position: absolute;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.6), transparent);
+    border-radius: 50%;
+    animation: purificationWave 2s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes purificationWave {
+    0% {
+        width: 20px;
+        height: 20px;
+        opacity: 1;
+    }
+    100% {
+        width: 150px;
+        height: 150px;
+        opacity: 0;
+    }
+}
+
+/* 冥想深度指示器 */
+.meditation-depth {
+    background: linear-gradient(45deg, #06b6d4, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: depthShimmer 4s ease-in-out infinite;
+}
+
+@keyframes depthShimmer {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.3);
+    }
+}
+
+/* 数据节点 */
+.data-node {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #06b6d4, #0891b2);
+    border-radius: 50%;
+    animation: nodeGlow 2s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes nodeGlow {
+    0% {
+        box-shadow: 0 0 5px #06b6d4;
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 15px #06b6d4, 0 0 25px #06b6d4;
+        transform: scale(1.2);
+    }
+}
+
+/* 流动连接线 */
+.flow-connection {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.8), transparent);
+    animation: connectionPulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes connectionPulse {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scaleY(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scaleY(2);
+    }
+}
+
+/* 禅意背景 */
+.zen-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    animation: zenShift 20s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes zenShift {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+}
+
+/* 状态面板发光 */
+.stat-glow {
+    text-shadow: 0 0 10px currentColor;
+    animation: statGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes statGlow {
+    0% {
+        text-shadow: 0 0 5px currentColor;
+    }
+    100% {
+        text-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+    }
+}
+
+/* 引导手势效果 */
+.guidance-gesture {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(6, 182, 212, 0.8);
+    border-radius: 50%;
+    animation: gestureRipple 1.5s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes gestureRipple {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+        border-width: 2px;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+        border-width: 0;
+    }
+}
+
+/* 数据流模式切换动画 */
+.mode-transition {
+    animation: modeTransition 1s ease-in-out;
+}
+
+@keyframes modeTransition {
+    0% {
+        filter: blur(5px);
+        opacity: 0.5;
+    }
+    100% {
+        filter: blur(0);
+        opacity: 1;
+    }
+}
+
+/* 平和状态指示器 */
+.peace-indicator {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    border-radius: 50%;
+    animation: peaceBreath 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes peaceBreath {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.6;
+    }
+}
+
+/* 教程高亮效果 */
+.tutorial-highlight {
+    box-shadow: 0 0 20px #06b6d4, 0 0 40px #06b6d4 !important;
+    animation: tutorialPulse 2s ease-in-out infinite;
+    z-index: 100 !important;
+    position: relative;
+}
+
+@keyframes tutorialPulse {
+    0%, 100% {
+        box-shadow: 0 0 20px #06b6d4, 0 0 40px #06b6d4;
+    }
+    50% {
+        box-shadow: 0 0 30px #06b6d4, 0 0 60px #06b6d4, 0 0 80px #06b6d4;
+    }
+} 
