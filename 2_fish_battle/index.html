@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大鱼吃小鱼 - Fish Battle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-cyan-900 to-teal-900 min-h-screen overflow-hidden">
+    <!-- 游戏界面 -->
+    <div id="gameContainer" class="relative w-full h-screen">
+        <!-- 顶部信息栏 -->
+        <div class="absolute top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-sm p-4">
+            <div class="flex justify-between items-center text-white">
+                <div class="flex items-center gap-6">
+                    <div class="text-xl font-bold">
+                        <span class="text-yellow-400">🐠</span> 分数: <span id="score" class="text-yellow-300">0</span>
+                    </div>
+                    <div class="text-lg">
+                        <span class="text-blue-400">🐟</span> 大小: <span id="fishSize" class="text-blue-300">1.0</span>
+                    </div>
+                    <div class="text-lg">
+                        <span class="text-red-400">❤️</span> 生命: <span id="lives" class="text-red-300">3</span>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button id="pauseBtn" class="bg-yellow-500/80 hover:bg-yellow-500 px-4 py-2 rounded-lg font-bold transition-all">
+                        暂停
+                    </button>
+                    <button id="restartBtn" class="bg-red-500/80 hover:bg-red-500 px-4 py-2 rounded-lg font-bold transition-all">
+                        重新开始
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏画布 -->
+        <canvas id="gameCanvas" class="block bg-gradient-to-b from-blue-400 to-blue-800"></canvas>
+
+        <!-- 开始屏幕 -->
+        <div id="startScreen" class="absolute inset-0 bg-black/70 flex items-center justify-center z-40">
+            <div class="text-center bg-white/10 backdrop-blur-lg rounded-3xl p-12 max-w-md mx-4">
+                <h1 class="text-5xl font-bold text-white mb-6 animate-pulse">🐠大鱼吃小鱼🐟</h1>
+                <p class="text-lg text-gray-300 mb-8">控制你的鱼儿，吃掉比你小的鱼来成长！<br>小心不要被大鱼吃掉哦～</p>
+                <div class="text-left text-gray-300 mb-8 space-y-2">
+                    <p>🎮 <strong>操作方式：</strong></p>
+                    <p>• 鼠标移动控制鱼儿游动</p>
+                    <p>• 吃掉小鱼获得分数和成长</p>
+                    <p>• 避开大鱼保命生存</p>
+                    <p>• 鱼儿越大游戏越刺激！</p>
+                </div>
+                <button id="startBtn" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-xl transform hover:scale-105 transition-all shadow-lg">
+                    🚀 开始游戏
+                </button>
+            </div>
+        </div>
+
+        <!-- 游戏结束屏幕 -->
+        <div id="gameOverScreen" class="absolute inset-0 bg-black/80 flex items-center justify-center z-40 hidden">
+            <div class="text-center bg-white/10 backdrop-blur-lg rounded-3xl p-12 max-w-md mx-4">
+                <h1 class="text-4xl font-bold text-red-400 mb-4">💀 游戏结束 💀</h1>
+                <div class="text-white mb-6">
+                    <p class="text-2xl mb-2">最终分数: <span id="finalScore" class="text-yellow-400 font-bold">0</span></p>
+                    <p class="text-lg mb-2">最大尺寸: <span id="maxSize" class="text-blue-400 font-bold">1.0</span></p>
+                    <p id="achievementText" class="text-green-400 font-bold"></p>
+                </div>
+                <div class="flex gap-4 justify-center">
+                    <button id="playAgainBtn" class="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-bold transform hover:scale-105 transition-all">
+                        🔄 再玩一次
+                    </button>
+                    <button id="backToMenuBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-bold transform hover:scale-105 transition-all">
+                        🏠 返回主页
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 暂停屏幕 -->
+        <div id="pauseScreen" class="absolute inset-0 bg-black/60 flex items-center justify-center z-40 hidden">
+            <div class="text-center bg-white/10 backdrop-blur-lg rounded-3xl p-8">
+                <h2 class="text-3xl font-bold text-white mb-6">⏸️ 游戏暂停</h2>
+                <button id="resumeBtn" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-xl transform hover:scale-105 transition-all">
+                    ▶️ 继续游戏
+                </button>
+            </div>
+        </div>
+
+        <!-- 成就提示 -->
+        <div id="achievementPopup" class="absolute top-24 left-1/2 transform -translate-x-1/2 bg-yellow-500/90 text-black px-6 py-3 rounded-lg font-bold z-50 hidden animate-bounce">
+            <span id="achievementMessage"></span>
+        </div>
+
+        <!-- 水泡效果 -->
+        <div id="bubbles" class="absolute inset-0 pointer-events-none z-10"></div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 
