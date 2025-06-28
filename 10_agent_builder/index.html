@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent构建师 - 学习AI Agent原理</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .agent-node {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .agent-node:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .connection-line {
+            stroke: #60a5fa;
+            stroke-width: 2;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .connection-line.active {
+            stroke: #10b981;
+            stroke-width: 3;
+            opacity: 1;
+            animation: pulse-line 2s infinite;
+        }
+
+        @keyframes pulse-line {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #60a5fa;
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
+        }
+
+        .step-indicator {
+            position: relative;
+            z-index: 10;
+        }
+
+        .step-indicator.active {
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(96, 165, 250, 0.5); }
+            to { box-shadow: 0 0 30px rgba(96, 165, 250, 0.8); }
+        }
+
+        .code-block {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+        }
+
+        .agent-component {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-component::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .agent-component:hover::before {
+            left: 100%;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #06b6d4, #3b82f6);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .agent-node:hover .tooltip {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 背景粒子效果 -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0"></div>
+    
+    <!-- 主容器 -->
+    <div class="relative z-10 min-h-screen">
+        <!-- 顶部导航 -->
+        <nav class="flex justify-between items-center p-6">
+            <div class="flex items-center space-x-4">
+                <a href="../" class="text-blue-400 hover:text-blue-300 transition-colors">
+                    ← 返回游戏中心
+                </a>
+                <h1 class="text-3xl font-bold gradient-text">Agent构建师</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-400">
+                    进度: <span id="progress-text">0%</span>
+                </div>
+                <button id="reset-btn" class="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors">
+                    重置
+                </button>
+            </div>
+        </nav>
+
+        <!-- 进度条 -->
+        <div class="px-6 mb-8">
+            <div class="progress-bar">
+                <div id="main-progress" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="container mx-auto px-6 pb-12">
+            <!-- 游戏介绍 -->
+            <div id="intro-section" class="agent-component mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-center gradient-text">🤖 探索AI Agent的奥秘</h2>
+                <p class="text-gray-300 text-center mb-6">
+                    通过交互式动画学习AI Agent的核心原理、构建路径和底层架构。
+                    点击下方开始你的Agent学习之旅！
+                </p>
+                <div class="text-center">
+                    <button id="start-journey" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105">
+                        开始学习之旅 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Agent构建流程可视化 -->
+            <div id="agent-pipeline" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center gradient-text">Agent构建流程</h2>
+                
+                <!-- 流程步骤 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="step-indicator agent-component" data-step="1">
+                        <div class="text-center">
+                            <div class="text-4xl mb-3">🧠</div>
+                            <h3 class="font-bold mb-2">感知模块</h3>
+                            <p class="text-sm text-gray-400">接收和处理环境信息</p>
+                            <div class="tooltip">Agent通过感知模块获取外部环境的信息输入</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-indicator agent-component" data-step="2">
+                        <div class="text-center">
+                            <div class="text-4xl mb-3">⚡</div>
+                            <h3 class="font-bold mb-2">推理引擎</h3>
+                            <p class="text-sm text-gray-400">分析信息并做出决策</p>
+                            <div class="tooltip">基于LLM的核心推理能力，处理复杂的逻辑推理</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-indicator agent-component" data-step="3">
+                        <div class="text-center">
+                            <div class="text-4xl mb-3">🛠️</div>
+                            <h3 class="font-bold mb-2">工具调用</h3>
+                            <p class="text-sm text-gray-400">执行具体的操作任务</p>
+                            <div class="tooltip">Agent可以调用外部工具和API来完成具体任务</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-indicator agent-component" data-step="4">
+                        <div class="text-center">
+                            <div class="text-4xl mb-3">🔄</div>
+                            <h3 class="font-bold mb-2">反馈循环</h3>
+                            <p class="text-sm text-gray-400">学习和优化决策过程</p>
+                            <div class="tooltip">通过反馈机制不断优化Agent的性能</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SVG连接线 -->
+                <svg class="w-full h-24 mb-8" viewBox="0 0 800 100">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa" />
+                        </marker>
+                    </defs>
+                    <path id="connection-1-2" class="connection-line" d="M 200 50 L 250 50" marker-end="url(#arrowhead)" />
+                    <path id="connection-2-3" class="connection-line" d="M 350 50 L 400 50" marker-end="url(#arrowhead)" />
+                    <path id="connection-3-4" class="connection-line" d="M 500 50 L 550 50" marker-end="url(#arrowhead)" />
+                    <path id="connection-4-1" class="connection-line" d="M 600 60 Q 400 90 200 60" marker-end="url(#arrowhead)" />
+                </svg>
+            </div>
+
+            <!-- 详细学习模块 -->
+            <div id="learning-modules" class="hidden space-y-8">
+                <!-- 感知模块详解 -->
+                <div id="perception-module" class="agent-component hidden">
+                    <h3 class="text-xl font-bold mb-4 gradient-text">🧠 感知模块 (Perception)</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold mb-3">核心功能:</h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li>• 文本输入处理和理解</li>
+                                <li>• 多模态信息融合 (文本、图像、音频)</li>
+                                <li>• 上下文信息提取和编码</li>
+                                <li>• 环境状态感知和建模</li>
+                            </ul>
+                            <div class="mt-4">
+                                <button class="interactive-demo px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors" data-demo="perception">
+                                    🎯 体验感知过程
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <div class="text-xs text-gray-400 mb-2">感知模块示例代码:</div>
+                            <pre class="text-green-400"><code>class PerceptionModule:
+    def __init__(self):
+        self.tokenizer = Tokenizer()
+        self.encoder = ContextEncoder()
+    
+    def process_input(self, raw_input):
+        # 文本预处理
+        tokens = self.tokenizer.encode(raw_input)
+        
+        # 上下文编码
+        context = self.encoder.encode(tokens)
+        
+        # 环境状态建模
+        state = self.build_state(context)
+        
+        return state</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 推理引擎详解 -->
+                <div id="reasoning-module" class="agent-component hidden">
+                    <h3 class="text-xl font-bold mb-4 gradient-text">⚡ 推理引擎 (Reasoning Engine)</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold mb-3">核心能力:</h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li>• 逻辑推理和因果分析</li>
+                                <li>• 计划生成和任务分解</li>
+                                <li>• 知识检索和应用</li>
+                                <li>• 决策制定和优先级排序</li>
+                            </ul>
+                            <div class="mt-4">
+                                <button class="interactive-demo px-4 py-2 bg-purple-500/20 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-colors" data-demo="reasoning">
+                                    🧮 体验推理过程
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <div class="text-xs text-gray-400 mb-2">推理引擎示例代码:</div>
+                            <pre class="text-purple-400"><code>class ReasoningEngine:
+    def __init__(self, llm_model):
+        self.llm = llm_model
+        self.memory = WorkingMemory()
+        self.planner = TaskPlanner()
+    
+    def reason(self, state, goal):
+        # 检索相关知识
+        knowledge = self.memory.retrieve(state)
+        
+        # 生成推理链
+        reasoning_chain = self.llm.generate_reasoning(
+            state, goal, knowledge
+        )
+        
+        # 制定执行计划
+        plan = self.planner.create_plan(reasoning_chain)
+        
+        return plan</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具调用详解 -->
+                <div id="tools-module" class="agent-component hidden">
+                    <h3 class="text-xl font-bold mb-4 gradient-text">🛠️ 工具调用 (Tool Calling)</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold mb-3">工具类型:</h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li>• 搜索引擎和知识库查询</li>
+                                <li>• 计算器和数据分析工具</li>
+                                <li>• 文件操作和代码执行</li>
+                                <li>• API调用和外部服务集成</li>
+                            </ul>
+                            <div class="mt-4">
+                                <button class="interactive-demo px-4 py-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors" data-demo="tools">
+                                    🔧 体验工具调用
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <div class="text-xs text-gray-400 mb-2">工具调用示例代码:</div>
+                            <pre class="text-green-400"><code>class ToolManager:
+    def __init__(self):
+        self.tools = {
+            'search': SearchTool(),
+            'calculator': CalculatorTool(),
+            'code_executor': CodeExecutor(),
+            'api_client': APIClient()
+        }
+    
+    def execute_tool(self, tool_name, params):
+        if tool_name in self.tools:
+            tool = self.tools[tool_name]
+            result = tool.execute(params)
+            return result
+        else:
+            raise ToolNotFoundError(tool_name)</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 反馈循环详解 -->
+                <div id="feedback-module" class="agent-component hidden">
+                    <h3 class="text-xl font-bold mb-4 gradient-text">🔄 反馈循环 (Feedback Loop)</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold mb-3">优化机制:</h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li>• 执行结果评估和分析</li>
+                                <li>• 错误检测和修正策略</li>
+                                <li>• 性能指标监控和优化</li>
+                                <li>• 学习模式更新和调整</li>
+                            </ul>
+                            <div class="mt-4">
+                                <button class="interactive-demo px-4 py-2 bg-orange-500/20 text-orange-300 rounded-lg hover:bg-orange-500/30 transition-colors" data-demo="feedback">
+                                    📊 体验反馈优化
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <div class="text-xs text-gray-400 mb-2">反馈循环示例代码:</div>
+                            <pre class="text-orange-400"><code>class FeedbackLoop:
+    def __init__(self):
+        self.evaluator = ResultEvaluator()
+        self.optimizer = PerformanceOptimizer()
+        self.memory = ExperienceMemory()
+    
+    def process_feedback(self, action, result, expected):
+        # 评估执行结果
+        score = self.evaluator.evaluate(result, expected)
+        
+        # 存储经验
+        experience = Experience(action, result, score)
+        self.memory.store(experience)
+        
+        # 优化策略
+        if score < threshold:
+            optimization = self.optimizer.suggest_improvement(experience)
+            return optimization
+        
+        return None</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 性能指标面板 -->
+            <div id="performance-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center gradient-text">📊 Agent性能监控</h2>
+                <div class="performance-panel">
+                    <h3 class="text-lg font-bold mb-4">实时性能指标</h3>
+                    <div class="performance-metric">
+                        <span class="metric-label">准确率</span>
+                        <div class="metric-bar-container">
+                            <div id="accuracy-bar" class="metric-bar accuracy" style="width: 0%"></div>
+                        </div>
+                        <span id="accuracy-value" class="metric-value">0%</span>
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">处理速度</span>
+                        <div class="metric-bar-container">
+                            <div id="speed-bar" class="metric-bar speed" style="width: 0%"></div>
+                        </div>
+                        <span id="speed-value" class="metric-value">0%</span>
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">创造力</span>
+                        <div class="metric-bar-container">
+                            <div id="creativity-bar" class="metric-bar creativity" style="width: 0%"></div>
+                        </div>
+                        <span id="creativity-value" class="metric-value">0%</span>
+                    </div>
+                    <div class="performance-metric">
+                        <span class="metric-label">可靠性</span>
+                        <div class="metric-bar-container">
+                            <div id="reliability-bar" class="metric-bar reliability" style="width: 0%"></div>
+                        </div>
+                        <span id="reliability-value" class="metric-value">0%</span>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <div class="text-sm text-gray-400">
+                            💡 提示：通过体验不同模块的演示来提升Agent性能指标
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实践环节 -->
+            <div id="practice-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center gradient-text">🎯 实践环节</h2>
+                <div class="agent-component">
+                    <h3 class="text-xl font-bold mb-4">构建你的第一个Agent</h3>
+                    <p class="text-gray-300 mb-6">
+                        现在让我们一起构建一个简单的智能助手Agent，体验完整的构建流程。
+                    </p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold mb-3">Agent配置:</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Agent名称:</label>
+                                    <input type="text" id="agent-name" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white" placeholder="例如: 智能助手小明">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">主要功能:</label>
+                                    <select id="agent-function" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white">
+                                        <option value="qa">问答助手</option>
+                                        <option value="search">搜索助手</option>
+                                        <option value="calculator">计算助手</option>
+                                        <option value="creative">创作助手</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">工具配置:</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" value="search"> 搜索工具
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" value="calculator"> 计算器
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" value="memory"> 记忆模块
+                                        </label>
+                                    </div>
+                                </div>
+                                <button id="build-agent" class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-blue-700 transition-all">
+                                    🚀 构建Agent
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold mb-3">Agent测试:</h4>
+                            <div id="agent-chat" class="bg-gray-800 border border-gray-600 rounded-lg p-4 h-64 overflow-y-auto mb-4">
+                                <div class="text-gray-400 text-center">Agent构建完成后，你可以在这里与它对话测试</div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <input type="text" id="chat-input" class="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white" placeholder="输入消息..." disabled>
+                                <button id="send-message" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors" disabled>
+                                    发送
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识图谱可视化 -->
+            <div id="knowledge-graph-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center gradient-text">🧠 Agent知识图谱</h2>
+                <div class="knowledge-graph" style="height: 300px; position: relative;">
+                    <div class="knowledge-node" style="top: 50px; left: 50px;" data-concept="perception">
+                        感知<br/>模块
+                    </div>
+                    <div class="knowledge-node" style="top: 50px; right: 50px;" data-concept="reasoning">
+                        推理<br/>引擎
+                    </div>
+                    <div class="knowledge-node" style="bottom: 50px; left: 50px;" data-concept="tools">
+                        工具<br/>调用
+                    </div>
+                    <div class="knowledge-node" style="bottom: 50px; right: 50px;" data-concept="feedback">
+                        反馈<br/>循环
+                    </div>
+                    <div class="knowledge-connection" id="conn-1-2" style="top: 90px; left: 130px; width: 120px;"></div>
+                    <div class="knowledge-connection" id="conn-2-4" style="top: 130px; right: 90px; width: 100px; transform: rotate(90deg);"></div>
+                    <div class="knowledge-connection" id="conn-4-3" style="bottom: 90px; right: 130px; width: 120px;"></div>
+                    <div class="knowledge-connection" id="conn-3-1" style="bottom: 130px; left: 90px; width: 100px; transform: rotate(90deg);"></div>
+                </div>
+                <div class="text-center mt-4">
+                    <p class="text-gray-300 text-sm">
+                        点击节点查看详细信息，观察Agent各模块间的知识连接关系
+                    </p>
+                </div>
+            </div>
+
+            <!-- 多Agent协作演示 -->
+            <div id="multi-agent-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center gradient-text">🤝 多Agent协作演示</h2>
+                <div class="multi-agent-panel">
+                    <h3 class="text-lg font-bold mb-4 text-center">Agent团队协作场景</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="agent-avatar">🔍</div>
+                            <h4 class="font-semibold mb-2">搜索专家</h4>
+                            <div class="agent-status active">活跃中</div>
+                            <p class="text-xs text-gray-400 mt-2">负责信息检索和数据收集</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="agent-avatar">🧮</div>
+                            <h4 class="font-semibold mb-2">分析师</h4>
+                            <div class="agent-status thinking">思考中</div>
+                            <p class="text-xs text-gray-400 mt-2">处理数据分析和逻辑推理</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="agent-avatar">📝</div>
+                            <h4 class="font-semibold mb-2">写作助手</h4>
+                            <div class="agent-status idle">待命中</div>
+                            <p class="text-xs text-gray-400 mt-2">负责内容生成和文档编写</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-gray-800/50 rounded-lg">
+                        <h4 class="font-semibold mb-2">协作流程示例：</h4>
+                        <div class="text-sm text-gray-300 space-y-1">
+                            <div>1. 🔍 搜索专家：收集市场数据和竞品信息</div>
+                            <div>2. 🧮 分析师：分析数据趋势，识别关键洞察</div>
+                            <div>3. 📝 写作助手：生成分析报告和建议方案</div>
+                            <div>4. 🔄 协作优化：各Agent互相反馈，持续改进</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 高级概念 -->
+            <div id="advanced-concepts" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center gradient-text">🎓 高级概念</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="agent-component">
+                        <h3 class="text-lg font-bold mb-3">🧠 多Agent系统</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            多个Agent协作完成复杂任务，每个Agent专注于特定领域，通过通信和协调实现整体目标。
+                        </p>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li>• Agent间通信协议</li>
+                            <li>• 任务分配和调度</li>
+                            <li>• 冲突解决机制</li>
+                            <li>• 集体智能涌现</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="agent-component">
+                        <h3 class="text-lg font-bold mb-3">🔄 强化学习Agent</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            通过与环境交互学习最优策略，在试错中不断改进决策能力，适应动态环境变化。
+                        </p>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li>• 奖励函数设计</li>
+                            <li>• 探索与利用平衡</li>
+                            <li>• 策略梯度优化</li>
+                            <li>• 经验回放机制</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="agent-component">
+                        <h3 class="text-lg font-bold mb-3">🌐 分布式Agent</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            Agent部署在分布式环境中，通过网络协作处理大规模任务，提供高可用性和扩展性。
+                        </p>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li>• 负载均衡策略</li>
+                            <li>• 容错和恢复机制</li>
+                            <li>• 数据一致性保证</li>
+                            <li>• 网络通信优化</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="agent-component">
+                        <h3 class="text-lg font-bold mb-3">🛡️ Agent安全性</h3>
+                        <p class="text-gray-300 text-sm mb-4">
+                            确保Agent行为符合预期，防止恶意攻击和误用，保护用户隐私和系统安全。
+                        </p>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li>• 输入验证和过滤</li>
+                            <li>• 权限控制和隔离</li>
+                            <li>• 行为监控和审计</li>
+                            <li>• 对抗性攻击防护</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 总结和下一步 -->
+            <div id="conclusion-section" class="hidden">
+                <div class="agent-component text-center">
+                    <h2 class="text-2xl font-bold mb-4 gradient-text">🎉 恭喜完成Agent学习之旅！</h2>
+                    <p class="text-gray-300 mb-6">
+                        你已经掌握了AI Agent的核心原理和构建流程。继续探索更多高级特性，构建更强大的智能Agent系统！
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-green-500/20 p-4 rounded-lg">
+                            <div class="text-2xl mb-2">✅</div>
+                            <div class="font-semibold">感知模块</div>
+                            <div class="text-sm text-gray-400">已掌握</div>
+                        </div>
+                        <div class="bg-green-500/20 p-4 rounded-lg">
+                            <div class="text-2xl mb-2">✅</div>
+                            <div class="font-semibold">推理引擎</div>
+                            <div class="text-sm text-gray-400">已掌握</div>
+                        </div>
+                        <div class="bg-green-500/20 p-4 rounded-lg">
+                            <div class="text-2xl mb-2">✅</div>
+                            <div class="font-semibold">工具调用</div>
+                            <div class="text-sm text-gray-400">已掌握</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-x-4">
+                        <button id="restart-journey" class="px-6 py-3 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors">
+                            🔄 重新学习
+                        </button>
+                        <button id="share-achievement" class="px-6 py-3 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors">
+                            📱 分享成就
+                        </button>
+                        <a href="../" class="inline-block px-6 py-3 bg-purple-500/20 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-colors">
+                            🏠 返回游戏中心
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notification" class="notification"></div>
+
+    <!-- 脚本 -->
+    <script src="game.js"></script>
+</body>
+</html>
