@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVM探索者 - 测验功能测试</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-btn:hover {
+            background: #6366f1;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        .status.info { background: #dbeafe; color: #1e40af; }
+        
+        /* 确保测验区域可见 */
+        .quiz-area {
+            display: block !important;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 JVM探索者 - 测验功能测试</h1>
+        
+        <div class="test-section">
+            <h3>🔍 测验系统检查</h3>
+            <div id="quizSystemStatus">检查中...</div>
+            <button class="test-btn" onclick="checkQuizSystem()">重新检查</button>
+            <button class="test-btn" onclick="generateTestQuestion()">生成测试问题</button>
+            <button class="test-btn" onclick="testSelectAnswer(1)">选择正确答案</button>
+            <button class="test-btn" onclick="testSubmitAnswer()">提交答案</button>
+        </div>
+    </div>
+
+    <!-- 测验区域 -->
+    <div id="quizArea" class="quiz-area">
+        <div class="quiz-header">
+            <h3>📝 知识检测</h3>
+            <div class="quiz-progress">
+                <span>题目: </span>
+                <span id="questionNumber">1</span>
+                <span>/</span>
+                <span id="totalQuestions">1</span>
+            </div>
+        </div>
+
+        <div class="question-container">
+            <div id="questionText" class="question">点击"生成测试问题"开始测试</div>
+            <div id="optionsContainer" class="options"></div>
+            <div id="quizFeedback" class="quiz-feedback hidden"></div>
+        </div>
+
+        <div class="quiz-controls">
+            <button id="submitBtn" onclick="SubmitAnswer()" disabled>提交答案</button>
+            <button id="nextBtn" onclick="NextQuestion()" class="hidden">下一题</button>
+        </div>
+    </div>
+
+    <script>
+        function checkQuizSystem() {
+            const statusDiv = document.getElementById('quizSystemStatus');
+            let statusHTML = '';
+            
+            if (typeof gameInstance !== 'undefined' && gameInstance !== null) {
+                statusHTML += '<div class="status success">✓ gameInstance: 存在</div>';
+                const methods = ['StartQuiz', 'DisplayQuestion', 'SelectAnswer', 'SubmitAnswer'];
+                methods.forEach(method => {
+                    if (typeof gameInstance[method] === 'function') {
+                        statusHTML += `<div class="status success">✓ ${method}: 存在</div>`;
+                    } else {
+                        statusHTML += `<div class="status error">✗ ${method}: 不存在</div>`;
+                    }
+                });
+            } else {
+                statusHTML += '<div class="status error">✗ gameInstance: 不存在</div>';
+            }
+            
+            if (typeof window.game === 'object' && window.game.SelectAnswer) {
+                statusHTML += '<div class="status success">✓ window.game.SelectAnswer: 存在</div>';
+            } else {
+                statusHTML += '<div class="status error">✗ window.game.SelectAnswer: 不存在</div>';
+            }
+            
+            const elements = ['questionText', 'optionsContainer', 'submitBtn', 'nextBtn'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    statusHTML += `<div class="status success">✓ #${id}: 存在</div>`;
+                } else {
+                    statusHTML += `<div class="status error">✗ #${id}: 不存在</div>`;
+                }
+            });
+            
+            statusDiv.innerHTML = statusHTML;
+        }
+        
+        function generateTestQuestion() {
+            console.log('生成测试问题...');
+            const testQuestion = {
+                question: "什么是JVM的核心作用？",
+                options: [
+                    "A. 编译Java源代码",
+                    "B. 运行Java字节码",
+                    "C. 管理操作系统",
+                    "D. 编辑Java代码"
+                ],
+                correct: 1,
+                explanation: "JVM的核心作用是运行Java字节码。"
+            };
+            
+            if (gameInstance) {
+                gameInstance.currentQuestions = [testQuestion];
+                gameInstance.currentQuizIndex = 0;
+                gameInstance.selectedAnswer = null;
+                gameInstance.DisplayQuestion();
+                console.log('测试问题生成成功');
+            }
+        }
+        
+        function testSelectAnswer(index) {
+            console.log(`测试选择答案 ${index}...`);
+            if (typeof window.game.SelectAnswer === 'function') {
+                window.game.SelectAnswer(index);
+            } else {
+                console.log('SelectAnswer方法不存在');
+            }
+        }
+        
+        function testSubmitAnswer() {
+            console.log('测试提交答案...');
+            if (typeof SubmitAnswer === 'function') {
+                SubmitAnswer();
+            } else {
+                console.log('SubmitAnswer函数不存在');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkQuizSystem, 1000);
+        });
+    </script>
+    
+    <script src="game.js"></script>
+</body>
+</html> 

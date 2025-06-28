@@ -2102,8 +2102,16 @@ class JVMExplorerGame {
         const question = this.currentQuestions[this.currentQuizIndex];
         
         document.getElementById('questionText').textContent = question.question;
-        document.getElementById('quizProgressText').textContent = 
-            `问题 ${this.currentQuizIndex + 1}/${this.currentQuestions.length}`;
+        
+        // 更新题目进度
+        const questionNumberEl = document.getElementById('questionNumber');
+        const totalQuestionsEl = document.getElementById('totalQuestions');
+        if (questionNumberEl) {
+            questionNumberEl.textContent = this.currentQuizIndex + 1;
+        }
+        if (totalQuestionsEl) {
+            totalQuestionsEl.textContent = this.currentQuestions.length;
+        }
 
         const optionsContainer = document.getElementById('optionsContainer');
         optionsContainer.innerHTML = question.options.map((option, index) => 
@@ -2112,12 +2120,16 @@ class JVMExplorerGame {
 
         // 重置状态
         this.selectedAnswer = null;
-        const submitBtn = document.getElementById('submitAnswer');
-        const nextBtn = document.getElementById('nextQuestion');
+        const submitBtn = document.getElementById('submitBtn');
+        const nextBtn = document.getElementById('nextBtn');
         
-        submitBtn.disabled = true;
-        submitBtn.classList.remove('hidden');
-        nextBtn.classList.add('hidden');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.remove('hidden');
+        }
+        if (nextBtn) {
+            nextBtn.classList.add('hidden');
+        }
         
         document.getElementById('quizFeedback').innerHTML = '';
         document.getElementById('quizFeedback').className = 'quiz-feedback';
@@ -2134,10 +2146,12 @@ class JVMExplorerGame {
         this.selectedAnswer = answerIndex;
         
         // 启用提交按钮
-        const submitBtn = document.getElementById('submitAnswer');
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
     }
 
     SubmitAnswer() {
@@ -2166,8 +2180,15 @@ class JVMExplorerGame {
             this.playerData.experience += 20;
         }
 
-        document.getElementById('submitAnswer').classList.add('hidden');
-        document.getElementById('nextQuestion').classList.remove('hidden');
+        const submitBtn = document.getElementById('submitBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        if (submitBtn) {
+            submitBtn.classList.add('hidden');
+        }
+        if (nextBtn) {
+            nextBtn.classList.remove('hidden');
+        }
     }
 
     NextQuestion() {
@@ -2664,6 +2685,15 @@ window.game = {
         const game = ensureGameInstance();
         if (game && game.NextTask) {
             game.NextTask();
+        }
+    },
+    
+    // 测验相关方法
+    SelectAnswer: function(answerIndex) {
+        console.log('SelectAnswer called with index:', answerIndex);
+        const game = ensureGameInstance();
+        if (game && game.SelectAnswer) {
+            game.SelectAnswer(answerIndex);
         }
     }
 };
