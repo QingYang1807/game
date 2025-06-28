@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVM探索者 - 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        .test-card:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+        }
+        .console-output {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin-top: 20px;
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>JVM探索者游戏测试</h1>
+    
+    <div class="test-card" onclick="testStartLevel(1)">
+        <h3>测试关卡1</h3>
+        <p>点击测试StartLevel(1)函数</p>
+    </div>
+    
+    <div class="test-card" onclick="testStartLevel(2)">
+        <h3>测试关卡2</h3>
+        <p>点击测试StartLevel(2)函数</p>
+    </div>
+    
+    <div class="test-card" onclick="testGameInstance()">
+        <h3>测试游戏实例</h3>
+        <p>检查gameInstance是否存在</p>
+    </div>
+    
+    <div class="test-card" onclick="testGameButton('ExecuteJavaProgram')">
+        <h3>测试游戏按钮</h3>
+        <p>测试ExecuteJavaProgram按钮功能</p>
+    </div>
+    
+    <div class="test-card" onclick="testGameButton('NextTask')">
+        <h3>测试下一步按钮</h3>
+        <p>测试NextTask按钮功能</p>
+    </div>
+    
+    <div class="console-output" id="console">
+        控制台输出将显示在这里...
+    </div>
+    
+    <script>
+        // 重定向console.log到页面显示
+        const consoleDiv = document.getElementById('console');
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleDiv.innerHTML += args.join(' ') + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        function testStartLevel(level) {
+            console.log(`测试StartLevel(${level})`);
+            try {
+                StartLevel(level);
+                console.log(`StartLevel(${level}) 调用成功`);
+            } catch (error) {
+                console.log(`StartLevel(${level}) 调用失败: ${error.message}`);
+            }
+        }
+        
+        function testGameInstance() {
+            console.log('检查游戏实例状态:');
+            console.log('gameInstance存在:', typeof gameInstance !== 'undefined' && gameInstance !== null);
+            if (typeof gameInstance !== 'undefined' && gameInstance !== null) {
+                console.log('gameInstance类型:', typeof gameInstance);
+                console.log('gameInstance.StartLevel存在:', typeof gameInstance.StartLevel === 'function');
+            }
+            
+            console.log('ensureGameInstance函数存在:', typeof ensureGameInstance === 'function');
+            if (typeof ensureGameInstance === 'function') {
+                try {
+                    const instance = ensureGameInstance();
+                    console.log('ensureGameInstance()返回:', typeof instance);
+                } catch (error) {
+                    console.log('ensureGameInstance()错误:', error.message);
+                }
+            }
+            
+            console.log('window.game对象存在:', typeof window.game === 'object');
+            if (typeof window.game === 'object') {
+                console.log('window.game.ExecuteJavaProgram存在:', typeof window.game.ExecuteJavaProgram === 'function');
+                console.log('window.game.NextTask存在:', typeof window.game.NextTask === 'function');
+            }
+        }
+        
+        function testGameButton(buttonName) {
+            console.log(`测试游戏按钮: ${buttonName}`);
+            try {
+                if (typeof window.game === 'object' && typeof window.game[buttonName] === 'function') {
+                    window.game[buttonName]();
+                    console.log(`${buttonName} 调用成功`);
+                } else {
+                    console.log(`${buttonName} 不存在或不是函数`);
+                }
+            } catch (error) {
+                console.log(`${buttonName} 调用失败: ${error.message}`);
+            }
+        }
+        
+        // 页面加载完成后自动测试
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM加载完成');
+            setTimeout(() => {
+                testGameInstance();
+            }, 1000);
+        });
+    </script>
+    
+    <!-- 引入原始游戏脚本 -->
+    <script src="game.js"></script>
+</body>
+</html> 

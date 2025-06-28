@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVM探索者 - 功能调试页面</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 10000;
+        }
+        .debug-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .debug-btn:hover {
+            background: #6366f1;
+        }
+        .debug-section {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .debug-title {
+            color: #fbbf24;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .status-good { color: #10b981; }
+        .status-bad { color: #ef4444; }
+        .log-output {
+            background: #111;
+            padding: 5px;
+            border-radius: 3px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 调试面板 -->
+    <div class="debug-panel">
+        <div class="debug-title">🔧 JVM探索者调试面板</div>
+        
+        <div class="debug-section">
+            <div class="debug-title">系统状态</div>
+            <div id="systemStatus">检查中...</div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">快速测试</div>
+            <button class="debug-btn" onclick="testAll()">全面测试</button>
+            <button class="debug-btn" onclick="testLevelCards()">测试关卡卡片</button>
+            <button class="debug-btn" onclick="testGameButtons()">测试游戏按钮</button>
+            <button class="debug-btn" onclick="clearLog()">清空日志</button>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">模拟关卡</div>
+            <button class="debug-btn" onclick="simulateLevel(1)">关卡1</button>
+            <button class="debug-btn" onclick="simulateLevel(2)">关卡2</button>
+            <button class="debug-btn" onclick="simulateLevel(3)">关卡3</button>
+        </div>
+        
+        <div class="log-output" id="debugLog">
+            调试日志将显示在这里...
+        </div>
+    </div>
+
+    <!-- 原始游戏内容 -->
+    <div class="game-container">
+        <!-- 游戏头部 -->
+        <header class="game-header">
+            <div class="header-left">
+                <h1>🔥 JVM探索者 (调试模式)</h1>
+                <p class="subtitle">Java虚拟机深度学习之旅</p>
+            </div>
+            <div class="header-right">
+                <div class="player-stats">
+                    <div class="stat">
+                        <span class="stat-label">等级</span>
+                        <span class="stat-value" id="playerLevel">1</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">经验</span>
+                        <span class="stat-value" id="playerExp">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">知识点</span>
+                        <span class="stat-value" id="knowledgeCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">成就</span>
+                        <span class="stat-value" id="achievementCount">0</span>
+                    </div>
+                </div>
+                <button class="back-btn" onclick="goBack()">返回主页</button>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="game-main">
+            <!-- 关卡选择界面 -->
+            <div id="levelSelector" class="level-selector">
+                <h2>🎯 选择学习路径 (调试模式)</h2>
+                
+                <!-- 简化的关卡列表 -->
+                <div class="learning-path">
+                    <div class="path-section">
+                        <h3>🌱 测试关卡</h3>
+                        <div class="levels-grid">
+                            <div class="level-card unlocked" onclick="StartLevel(1)">
+                                <div class="level-number">01</div>
+                                <div class="level-content">
+                                    <div class="level-title">JVM基础概念</div>
+                                    <div class="level-desc">测试基础功能</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(2)">
+                                <div class="level-number">02</div>
+                                <div class="level-content">
+                                    <div class="level-title">类加载机制</div>
+                                    <div class="level-desc">测试高级功能</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游戏区域 -->
+            <div id="gameArea" class="game-area hidden">
+                <div class="game-header-bar">
+                    <button class="back-to-levels" onclick="BackToLevels()">← 返回关卡</button>
+                    <div class="current-level-info">
+                        <h3 id="currentLevelTitle">调试关卡</h3>
+                    </div>
+                </div>
+
+                <!-- 简化的JVM可视化区域 -->
+                <div class="jvm-visualization">
+                    <div id="jvmContainer" class="jvm-container">
+                        <div class="jvm-component" id="testComponent">
+                            <div class="component-title">测试组件</div>
+                            <div class="component-content">点击测试交互</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 控制面板 -->
+                <div class="control-panel">
+                    <div class="panel-section">
+                        <h4>🎮 交互控制</h4>
+                        <div id="gameControls" class="controls">
+                            <button class="control-btn" onclick="game.ExecuteJavaProgram()">执行Java程序</button>
+                            <button class="control-btn" onclick="game.NextTask()">下一步</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 调试日志系统
+        const debugLog = document.getElementById('debugLog');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function logToDebug(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#94a3b8';
+            debugLog.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToDebug(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToDebug(args.join(' '), 'error');
+        };
+        
+        // 调试功能
+        function clearLog() {
+            debugLog.innerHTML = '日志已清空<br>';
+        }
+        
+        function updateSystemStatus() {
+            const status = document.getElementById('systemStatus');
+            let statusHTML = '';
+            
+            // 检查gameInstance
+            if (typeof gameInstance !== 'undefined' && gameInstance !== null) {
+                statusHTML += '<div class="status-good">✓ gameInstance: 正常</div>';
+            } else {
+                statusHTML += '<div class="status-bad">✗ gameInstance: 未找到</div>';
+            }
+            
+            // 检查window.game
+            if (typeof window.game === 'object') {
+                statusHTML += '<div class="status-good">✓ window.game: 正常</div>';
+            } else {
+                statusHTML += '<div class="status-bad">✗ window.game: 未找到</div>';
+            }
+            
+            // 检查关键函数
+            const functions = ['StartLevel', 'BackToLevels', 'ensureGameInstance'];
+            functions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    statusHTML += `<div class="status-good">✓ ${func}: 正常</div>`;
+                } else {
+                    statusHTML += `<div class="status-bad">✗ ${func}: 未找到</div>`;
+                }
+            });
+            
+            status.innerHTML = statusHTML;
+        }
+        
+        function testAll() {
+            logToDebug('=== 开始全面测试 ===', 'success');
+            testLevelCards();
+            testGameButtons();
+            logToDebug('=== 全面测试完成 ===', 'success');
+        }
+        
+        function testLevelCards() {
+            logToDebug('测试关卡卡片点击...');
+            const cards = document.querySelectorAll('.level-card');
+            logToDebug(`找到 ${cards.length} 个关卡卡片`);
+            
+            cards.forEach((card, index) => {
+                const levelNum = index + 1;
+                try {
+                    // 模拟点击测试
+                    if (typeof StartLevel === 'function') {
+                        logToDebug(`关卡${levelNum}: StartLevel函数存在`, 'success');
+                    } else {
+                        logToDebug(`关卡${levelNum}: StartLevel函数不存在`, 'error');
+                    }
+                } catch (error) {
+                    logToDebug(`关卡${levelNum}测试失败: ${error.message}`, 'error');
+                }
+            });
+        }
+        
+        function testGameButtons() {
+            logToDebug('测试游戏按钮功能...');
+            const buttonsToTest = [
+                'ExecuteJavaProgram', 'ShowCompilationProcess', 'LoadClass', 
+                'NextTask', 'ShowAchievements', 'ShowHelp'
+            ];
+            
+            buttonsToTest.forEach(buttonName => {
+                try {
+                    if (typeof window.game === 'object' && typeof window.game[buttonName] === 'function') {
+                        logToDebug(`${buttonName}: 函数存在`, 'success');
+                    } else {
+                        logToDebug(`${buttonName}: 函数不存在`, 'error');
+                    }
+                } catch (error) {
+                    logToDebug(`${buttonName}测试失败: ${error.message}`, 'error');
+                }
+            });
+        }
+        
+        function simulateLevel(levelNum) {
+            logToDebug(`=== 模拟进入关卡${levelNum} ===`, 'success');
+            try {
+                StartLevel(levelNum);
+                logToDebug(`成功进入关卡${levelNum}`, 'success');
+            } catch (error) {
+                logToDebug(`进入关卡${levelNum}失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            logToDebug('页面DOM加载完成');
+            setTimeout(() => {
+                updateSystemStatus();
+                logToDebug('系统状态检查完成');
+            }, 1000);
+            
+            // 定期更新状态
+            setInterval(updateSystemStatus, 5000);
+        });
+        
+        // 监听错误
+        window.addEventListener('error', (event) => {
+            logToDebug(`JavaScript错误: ${event.error.message}`, 'error');
+        });
+    </script>
+    
+    <!-- 引入原始游戏脚本 -->
+    <script src="game.js"></script>
+</body>
+</html> 

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVM探索者 - Java虚拟机学习游戏</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- 游戏头部 -->
+        <header class="game-header">
+            <div class="header-left">
+                <h1>🔥 JVM探索者</h1>
+                <p class="subtitle">Java虚拟机深度学习之旅</p>
+            </div>
+            <div class="header-right">
+                <div class="player-stats">
+                    <div class="stat">
+                        <span class="stat-label">等级</span>
+                        <span class="stat-value" id="playerLevel">1</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">经验</span>
+                        <span class="stat-value" id="playerExp">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">知识点</span>
+                        <span class="stat-value" id="knowledgeCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">成就</span>
+                        <span class="stat-value" id="achievementCount">0</span>
+                    </div>
+                </div>
+                <button class="back-btn" onclick="goBack()">返回主页</button>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="game-main">
+            <!-- 关卡选择界面 -->
+            <div id="levelSelector" class="level-selector">
+                <h2>🎯 选择学习路径</h2>
+                
+                <!-- 学习进度总览 -->
+                <div class="progress-overview">
+                    <div class="progress-item">
+                        <span class="progress-label">总体进度</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="overallProgress" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text" id="overallProgressText">0%</span>
+                    </div>
+                </div>
+
+                <!-- 学习路径 -->
+                <div class="learning-path">
+                    <div class="path-section">
+                        <h3>🌱 入门篇</h3>
+                        <div class="levels-grid">
+                            <div class="level-card unlocked" onclick="StartLevel(1)">
+                                <div class="level-number">01</div>
+                                <div class="level-content">
+                                    <div class="level-title">JVM基础概念</div>
+                                    <div class="level-desc">了解Java虚拟机的基本架构</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 50 EXP</span>
+                                        <span class="reward-item">🏆 新手探索者</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(2)">
+                                <div class="level-number">02</div>
+                                <div class="level-content">
+                                    <div class="level-title">类加载机制</div>
+                                    <div class="level-desc">探索类的加载过程</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 75 EXP</span>
+                                        <span class="reward-item">🔗 类加载专家</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(3)">
+                                <div class="level-number">03</div>
+                                <div class="level-content">
+                                    <div class="level-title">内存结构概览</div>
+                                    <div class="level-desc">掌握JVM内存布局</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 100 EXP</span>
+                                        <span class="reward-item">🧠 内存大师</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-section">
+                        <h3>⚡ 进阶篇</h3>
+                        <div class="levels-grid">
+                            <div class="level-card unlocked" onclick="StartLevel(4)">
+                                <div class="level-number">04</div>
+                                <div class="level-content">
+                                    <div class="level-title">堆内存管理</div>
+                                    <div class="level-desc">深入了解堆内存的分配和管理</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 125 EXP</span>
+                                        <span class="reward-item">🏗️ 内存建筑师</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(5)">
+                                <div class="level-number">05</div>
+                                <div class="level-content">
+                                    <div class="level-title">垃圾回收机制</div>
+                                    <div class="level-desc">学习GC算法和垃圾回收过程</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 150 EXP</span>
+                                        <span class="reward-item">🗑️ GC专家</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(6)">
+                                <div class="level-number">06</div>
+                                <div class="level-content">
+                                    <div class="level-title">方法区与元空间</div>
+                                    <div class="level-desc">理解方法区的演变和元空间</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 175 EXP</span>
+                                        <span class="reward-item">📚 元数据守护者</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="path-section">
+                        <h3>🚀 专家篇</h3>
+                        <div class="levels-grid">
+                            <div class="level-card unlocked" onclick="StartLevel(7)">
+                                <div class="level-number">07</div>
+                                <div class="level-content">
+                                    <div class="level-title">JIT编译优化</div>
+                                    <div class="level-desc">探索即时编译器的优化策略</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 200 EXP</span>
+                                        <span class="reward-item">⚡ 编译大师</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(8)">
+                                <div class="level-number">08</div>
+                                <div class="level-content">
+                                    <div class="level-title">并发与线程安全</div>
+                                    <div class="level-desc">理解JVM中的并发机制</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 225 EXP</span>
+                                        <span class="reward-item">🔒 并发专家</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-card unlocked" onclick="StartLevel(9)">
+                                <div class="level-number">09</div>
+                                <div class="level-content">
+                                    <div class="level-title">性能调优实战</div>
+                                    <div class="level-desc">掌握JVM性能调优技巧</div>
+                                    <div class="level-status unlocked">已解锁</div>
+                                    <div class="level-rewards">
+                                        <span class="reward-item">💎 250 EXP</span>
+                                        <span class="reward-item">🏆 JVM大师</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游戏区域 -->
+            <div id="gameArea" class="game-area hidden">
+                <!-- 游戏头部栏 -->
+                <div class="game-header-bar">
+                    <button class="back-to-levels" onclick="BackToLevels()">← 返回关卡</button>
+                    <div class="current-level-info">
+                        <h3 id="currentLevelTitle">关卡标题</h3>
+                        <div class="game-progress">
+                            <span>进度: </span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <span id="progressText">0%</span>
+                        </div>
+                    </div>
+                    <div class="level-rewards-display">
+                        <span class="reward-preview" id="currentLevelReward">💎 +50 EXP</span>
+                    </div>
+                </div>
+
+                <!-- 学习引导系统 -->
+                <div id="tutorialOverlay" class="tutorial-overlay hidden">
+                    <div class="tutorial-content">
+                        <div class="tutorial-character">🤖</div>
+                        <div class="tutorial-text" id="tutorialText">欢迎来到JVM探索之旅！</div>
+                        <div class="tutorial-actions">
+                            <button class="tutorial-btn" onclick="game.NextTutorialStep()">继续</button>
+                            <button class="tutorial-btn secondary" onclick="game.SkipTutorial()">跳过引导</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JVM可视化区域 -->
+                <div class="jvm-visualization">
+                    <div id="jvmContainer" class="jvm-container">
+                        <!-- 动态生成的JVM组件 -->
+                    </div>
+                    
+                    <!-- 交互提示 -->
+                    <div id="interactionHints" class="interaction-hints">
+                        <div class="hint-item" id="hint1">
+                            <span class="hint-icon">💡</span>
+                            <span class="hint-text">点击组件查看详细信息</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 控制面板 -->
+                <div class="control-panel">
+                    <div class="panel-section">
+                        <h4>🎮 交互控制</h4>
+                        <div id="gameControls" class="controls">
+                            <!-- 动态生成的控制按钮 -->
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <h4>📖 知识要点</h4>
+                        <div id="knowledgeDisplay" class="knowledge-display">
+                            <!-- 动态显示知识点 -->
+                        </div>
+                        <div class="knowledge-progress">
+                            <span>掌握度: </span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="knowledgeProgress"></div>
+                            </div>
+                            <span id="knowledgeProgressText">0/10</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h4>🎯 当前任务</h4>
+                        <div class="task-panel">
+                            <div id="taskContent" class="task-content">
+                                <!-- 动态显示任务内容 -->
+                            </div>
+                            <div id="taskProgress" class="task-progress">
+                                <!-- 任务进度 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 测验区域 -->
+            <div id="quizArea" class="quiz-area hidden">
+                <div class="quiz-header">
+                    <h3>📝 知识检测</h3>
+                    <div class="quiz-progress">
+                        <span>题目: </span>
+                        <span id="questionNumber">1</span>
+                        <span>/</span>
+                        <span id="totalQuestions">3</span>
+                    </div>
+                </div>
+
+                <div class="question-container">
+                    <div id="questionText" class="question">
+                        <!-- 动态显示问题 -->
+                    </div>
+                    
+                    <div id="optionsContainer" class="options">
+                        <!-- 动态显示选项 -->
+                    </div>
+                    
+                    <div id="quizFeedback" class="quiz-feedback hidden">
+                        <!-- 答题反馈 -->
+                    </div>
+                </div>
+
+                <div class="quiz-controls">
+                    <button id="submitBtn" onclick="SubmitAnswer()" disabled>提交答案</button>
+                    <button id="nextBtn" onclick="NextQuestion()" class="hidden">下一题</button>
+                    <button class="secondary" onclick="game.ShowHint()">💡 提示</button>
+                </div>
+            </div>
+
+            <!-- 关卡完成界面 -->
+            <div id="levelComplete" class="level-complete hidden">
+                <div class="complete-content">
+                    <div class="celebration">🎉</div>
+                    <h2>关卡完成！</h2>
+                    <div class="completion-message" id="completionMessage">
+                        恭喜你完成了这个关卡的学习！
+                    </div>
+                    
+                    <div class="completion-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">获得经验</span>
+                            <span class="stat-value" id="earnedExp">+50</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">答题正确率</span>
+                            <span class="stat-value" id="accuracyRate">100%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">用时</span>
+                            <span class="stat-value" id="completionTime">5分钟</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">新成就</span>
+                            <span class="stat-value" id="newAchievement">🏆 新手探索者</span>
+                        </div>
+                    </div>
+
+                    <div class="completion-actions">
+                        <button onclick="NextLevel()">下一关</button>
+                        <button onclick="RestartLevel()">重新学习</button>
+                        <button onclick="BackToLevels()">返回关卡</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 成就系统弹窗 -->
+        <div id="achievementModal" class="modal hidden">
+            <div class="modal-content achievement-modal">
+                <div class="achievement-icon">🏆</div>
+                <h3>新成就解锁！</h3>
+                <div class="achievement-name" id="achievementName">新手探索者</div>
+                <div class="achievement-desc" id="achievementDesc">完成第一个关卡的学习</div>
+                <button onclick="game.CloseAchievementModal()">太棒了！</button>
+            </div>
+        </div>
+
+        <!-- 提示系统 -->
+        <div id="hintModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💡 学习提示</h3>
+                    <button class="close-modal" onclick="CloseModal('hintModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="hintContent">
+                        <!-- 动态显示提示内容 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 浮动按钮 -->
+        <div class="floating-buttons">
+            <button class="float-btn" onclick="game.ShowAchievements()" title="成就">🏆</button>
+            <button class="float-btn" onclick="game.ShowProgress()" title="进度">📊</button>
+            <button class="float-btn" onclick="game.ShowHelp()" title="帮助">❓</button>
+        </div>
+
+        <!-- 粒子效果容器 -->
+        <div id="particleContainer" class="particle-container"></div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 
